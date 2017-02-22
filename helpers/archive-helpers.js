@@ -2,12 +2,18 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
 var readline = require('readline');
+var http = require('http');
+var URL = require('url');
+var request = require('request');
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
  * if you move any files, you'll only need to change your code in one place! Feel free to
  * customize it in any way you wish.
  */
+var sanitizeFileName = function(fileName) {
+  return fileName.replace(/[^\w]/g, '_');
+};
 
 exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
@@ -62,5 +68,15 @@ exports.isUrlArchived = function(url, callback) {
 };
 
 exports.downloadUrls = function(urls) {
-
+  urls.forEach(function (url) {
+    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<DOWNLOADING', url);
+    var data = '';
+    request('http://' + url, function(error, response, body) {
+      if (!error && response.statusCode === 200) {
+        fs.writeFile(exports.paths.archivedSites + '/' + url, body); 
+      } else {
+        console.log('ERROR', error);
+      }
+    });
+  });
 };

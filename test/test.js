@@ -142,14 +142,15 @@ describe('archive helpers', function() {
     });
   });
 
-  xdescribe('#downloadUrls', function () {
+  describe('#downloadUrls', function () {
     it('should download all pending urls in the list', function (done) {
-      var urlArray = ['www.example.com', 'www.google.com'];
+      var urlArray = ['www.google.com', 'www.example.com'];
       archive.downloadUrls(urlArray);
-
       // Ugly hack to wait for all downloads to finish.
       setTimeout(function () {
-        expect(fs.readdirSync(archive.paths.archivedSites)).to.deep.equal(urlArray);
+        urlArray.forEach(function (file) {
+          expect(fs.existsSync(archive.paths.archivedSites + '/' + file)).to.be.true;
+        });  
         done();
       }, 500);
     });
