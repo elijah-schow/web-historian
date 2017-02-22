@@ -27,28 +27,27 @@ exports.initialize = function(pathsObj) {
 
 exports.readListOfUrls = function(callback) {
   // read sites from a file
-  var urls = [];
+  var urlList = [];
   var lineReader = readline.createInterface({
     input: fs.createReadStream(exports.paths.list)
   });
   // store each site in an array - each line in the file contains a seperate url
   lineReader.on('line', function (line) {
-    urls.push(line);
+    urlList.push(line);
   });
   // invoke the callback function an pass in the array of urls
   lineReader.on('close', function () {
-    callback(urls);
+    callback(urlList);
   }); 
 
 };
 
 exports.isUrlInList = function(url, callback) {
- // check paths.archivedSites for url to exist
-
-// pass result into a callback funciton
-
-///what is the counter for??
-
+  exports.readListOfUrls(function(urlList) {
+    callback(
+      _.contains(urlList, url)
+    );
+  });
 };
 
 exports.addUrlToList = function(url, callback) {
