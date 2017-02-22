@@ -51,12 +51,7 @@ exports.isUrlInList = function(url, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
-//check isUrlInList to see if true or false
-
-//if false add
-
-//if true don't add
-
+  fs.appendFile(exports.paths.list, url, callback);
 };
 
 exports.isUrlArchived = function(url, callback) {
