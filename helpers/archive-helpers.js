@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
-
+var readline = require('readline');
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
@@ -26,16 +26,46 @@ exports.initialize = function(pathsObj) {
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(callback) {
+  // read sites from a file
+  var urls = [];
+  var lineReader = readline.createInterface({
+    input: fs.createReadStream(exports.paths.list)
+  });
+  // store each site in an array - each line in the file contains a seperate url
+  lineReader.on('line', function (line) {
+    urls.push(line);
+  });
+  // invoke the callback function an pass in the array of urls
+  lineReader.on('close', function () {
+    callback(urls);
+  }); 
+
 };
 
 exports.isUrlInList = function(url, callback) {
+ // check paths.archivedSites for url to exist
+
+// pass result into a callback funciton
+
+///what is the counter for??
+
 };
 
 exports.addUrlToList = function(url, callback) {
+//check isUrlInList to see if true or false
+
+//if false add
+
+//if true don't add
+
 };
 
 exports.isUrlArchived = function(url, callback) {
+//
+
+
 };
 
 exports.downloadUrls = function(urls) {
+ // downloads urls  
 };
