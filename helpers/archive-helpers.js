@@ -55,11 +55,12 @@ exports.addUrlToList = function(url, callback) {
 };
 
 exports.isUrlArchived = function(url, callback) {
-//
-
-
+  // WARNING: concatenating a path with untrusted user input is extremely dangerous
+  //    Does no protect against injection or directory traversal
+  //    Ensure that the url does not contain command characters before passing it to this function
+  fs.exists(exports.paths.archivedSites + '/' + url, callback);
 };
 
 exports.downloadUrls = function(urls) {
- // downloads urls  
+
 };
