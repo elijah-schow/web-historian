@@ -22,6 +22,7 @@ exports.handleRequest = function (request, response) {
           helpers.serveAssets(response, archive.escapeFileName(requestUrl, './archives/sites'));
         } else {
           console.log('Doesn\'t exist');
+          archive.addUrlToList(requestUrl);
           helpers.serveAssets(response, './web/public/loading.html');
         }
       });
