@@ -3,32 +3,38 @@ var archive = require('../helpers/archive-helpers');
 var url = require('url');
 var fs = require('fs');
 var qs = require('qs');
-var helpers = require('../helpers/http-helpers.js');
+var utils = require('../helpers/http-helpers.js');
 
-exports.handleRequest = function (request, response) {
-  var path = url.parse(request.url).pathname;
-  if (path === '/' && request.method === 'GET') {
-    helpers.serveAssets(response, './web/public/index.html');
-  } else if (path === '/' && request.method === 'POST') {
+var actions = {
+  'GET': function(request, response) {
+    var urlObject = url.parse(request.url);
+    var path = urlObject.pathname === '/' ? '/index.html' : urlObject.pathname;
+    utils.serveAssets(response, path);
+  },
+  'POST': function(request, response) {
     var data = '';
     request.on('data', function(chunk) {
       data += chunk;
     });
     request.on('end', function() {
-      var requestUrl = archive.httpify(qs.parse(data).url);
-      archive.isUrlArchived(requestUrl, function(exists) {
+      var requestUrl = '/' + qs.parse(data).url;
+      archive.isUrlArchived( requestUrl, function(exists) {
         if (exists) {
-          console.log('EXISTS', requestUrl);
-          helpers.serveAssets(response, archive.escapeFileName(requestUrl, './archives/sites'));
+          utils.serveAssets(response, requestUrl);
         } else {
-          console.log('Doesn\'t exist', requestUrl);
           archive.addUrlToList(requestUrl);
-          helpers.serveAssets(response, './web/public/loading.html');
+          utils.serveAssets(response, '/loading.html');
         }
       });
     });
+  }
+};
+
+exports.handleRequest = function (request, response) {
+  var action = actions[request.method];
+  if (action) {
+    action(request, response);
   } else {
-    response.statusCode = 404;
-    response.end();
+    utils.respond(response, "Not found", 404);
   }
 };

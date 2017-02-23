@@ -5,15 +5,14 @@ var readline = require('readline');
 var http = require('http');
 var URL = require('url');
 var request = require('request');
+var utils = require('./http-helpers.js');
+
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
  * if you move any files, you'll only need to change your code in one place! Feel free to
  * customize it in any way you wish.
  */
-exports.httpify = function(url) {
-  return url.match(/^http:\/\//) ? url : 'http://' + url;
-};
 
 exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
@@ -26,11 +25,6 @@ exports.initialize = function(pathsObj) {
   _.each(pathsObj, function(path, type) {
     exports.paths[type] = path;
   });
-};
-
-exports.escapeFileName = function( fileName, path) {
-  var path = path ? path + '/' : '';
-  return path + fileName.replace(/[^\w]/g, '_');
 };
 
 // The following function names are provided to you to suggest how you might
@@ -54,17 +48,16 @@ exports.readListOfUrls = function(callback) {
 };
 
 exports.isUrlInList = function(url, callback) {
-  url = exports.httpify(url);
   exports.readListOfUrls(function(urlList) {
     callback(
       _.contains(urlList, url)
     );
   });
 };
- 
+
 exports.addUrlToList = function(url, callback) {
-  url = exports.httpify(url);
   exports.isUrlInList(url, function(exists) {
+    url = url.replace(/^\//, '');
     fs.appendFile(exports.paths.list, '\n' + url, callback);
   });
 };
@@ -73,15 +66,15 @@ exports.isUrlArchived = function(url, callback) {
   // WARNING: concatenating a path with untrusted user input is extremely dangerous
   //    Does no protect against injection or directory traversal
   //    Ensure that the url does not contain command characters before passing it to this function
-  fs.exists(exports.escapeFileName(url, exports.paths.archivedSites), callback);
+  fs.exists(exports.paths.archivedSites + url, callback);
 };
 
 exports.downloadUrls = function(urls) {
   urls.forEach(function (url) {
     var data = '';
-    request(url, function(error, response, body) {
+    request( utils.httpify(url), function(error, response, body) {
       if (!error && response.statusCode === 200) {
-        fs.writeFile(exports.escapeFileName(url, exports.paths.archivedSites), body);
+        fs.writeFile(exports.paths.archivedSites + url, body, function(){console.log('write file', url)});
       } else {
         console.log('ERROR', error);
       }
