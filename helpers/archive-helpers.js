@@ -11,9 +11,6 @@ var request = require('request');
  * if you move any files, you'll only need to change your code in one place! Feel free to
  * customize it in any way you wish.
  */
-var sanitizeFileName = function(fileName) {
-  return fileName.replace(/[^\w]/g, '_');
-};
 
 exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
@@ -26,6 +23,11 @@ exports.initialize = function(pathsObj) {
   _.each(pathsObj, function(path, type) {
     exports.paths[type] = path;
   });
+};
+
+exports.escapeFileName = function( fileName, path) {
+  var path = path ? path + '/' : '';
+  return path + fileName.replace(/[^\w]/g, '_');
 };
 
 // The following function names are provided to you to suggest how you might
@@ -64,16 +66,15 @@ exports.isUrlArchived = function(url, callback) {
   // WARNING: concatenating a path with untrusted user input is extremely dangerous
   //    Does no protect against injection or directory traversal
   //    Ensure that the url does not contain command characters before passing it to this function
-  fs.exists(exports.paths.archivedSites + '/' + url, callback);
+  fs.exists(exports.escapeFileName(url, exports.paths.archivedSites), callback);
 };
 
 exports.downloadUrls = function(urls) {
   urls.forEach(function (url) {
-    console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<DOWNLOADING', url);
     var data = '';
     request('http://' + url, function(error, response, body) {
       if (!error && response.statusCode === 200) {
-        fs.writeFile(exports.paths.archivedSites + '/' + url, body); 
+        fs.writeFile(exports.escapeFileName(url, exports.paths.archivedSites), body); 
       } else {
         console.log('ERROR', error);
       }

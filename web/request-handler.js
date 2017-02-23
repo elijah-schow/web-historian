@@ -2,19 +2,29 @@ var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var url = require('url');
 var fs = require('fs');
+var qs = require('qs');
+var helpers = require('./http-helpers.js');
 
 exports.handleRequest = function (request, response) {
   var path = url.parse(request.url).pathname;
   if (path === '/' && request.method === 'GET') {
-    fs.readFile('./web/public/index.html', function(error, data) {
-      if (error) {
-        console.log('index.html failed to load\n', error);
-        response.statusCode = 500;
-        response.end();
-      } else {
-        response.statusCode = 200;
-        response.end(data);
-      }
+    helpers.serveAssets(response, './web/public/index.html');
+  } else if (path === '/' && request.method === 'POST') {
+    var data = '';
+    request.on('data', function(chunk) {
+      data += chunk;
+    });
+    request.on('end', function() {
+      var requestUrl = qs.parse(data).url;
+      archive.isUrlArchived(requestUrl, function(exists) {
+        if (exists) { 
+          console.log('EXISTS');
+          helpers.serveAssets(response, archive.escapeFileName(requestUrl, './archives/sites'));
+        } else {
+          console.log('Doesn\'t exist');
+          helpers.serveAssets(response, './web/public/loading.html');
+        }
+      });
     });
   } else {
     response.statusCode = 404;
