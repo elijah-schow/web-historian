@@ -11,6 +11,9 @@ var request = require('request');
  * if you move any files, you'll only need to change your code in one place! Feel free to
  * customize it in any way you wish.
  */
+exports.httpify = function(url) {
+  return url.match(/^http:\/\//) ? url : 'http://' + url;
+};
 
 exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
@@ -51,16 +54,19 @@ exports.readListOfUrls = function(callback) {
 };
 
 exports.isUrlInList = function(url, callback) {
+  url = exports.httpify(url);
   exports.readListOfUrls(function(urlList) {
     callback(
       _.contains(urlList, url)
     );
   });
 };
-
+ 
 exports.addUrlToList = function(url, callback) {
-  url = url.match(/^http:\/\//) ? url : 'http://' + url;
-  fs.appendFile(exports.paths.list, '\n' + url, callback);
+  url = exports.httpify(url);
+  exports.isUrlInList(url, function(exists) {
+    fs.appendFile(exports.paths.list, '\n' + url, callback);
+  });
 };
 
 exports.isUrlArchived = function(url, callback) {

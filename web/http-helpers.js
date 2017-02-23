@@ -10,7 +10,7 @@ exports.headers = {
   'Content-Type': 'text/html'
 };
 
-exports.serveAssets = function(response, asset/*, callback*/) {
+exports.serveAssets = function(response, asset) {
   fs.readFile(asset, function(error, data) {
     if (error) {
       console.log('Failed to load\n', asset, '\n', error);

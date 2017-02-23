@@ -3,17 +3,15 @@
 var archive = require('../helpers/archive-helpers.js');
 
 exports.unarchived = function () {
+  console.log('worker is working!');
   archive.readListOfUrls(function(urlList) {
     urlList.forEach(function(site) {
-      console.log('SITE*****', site);
       archive.isUrlArchived(site, function(exists) {
         if (exists) {
-          console.log('IT EXISTS!!>>>', site);
         } else {
           archive.downloadUrls([site]);
-          console.log('IT DOESNT EXIST', site);
         }
       });
     });
   });
-}; 
+};

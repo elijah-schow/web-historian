@@ -15,13 +15,13 @@ exports.handleRequest = function (request, response) {
       data += chunk;
     });
     request.on('end', function() {
-      var requestUrl = qs.parse(data).url;
+      var requestUrl = archive.httpify(qs.parse(data).url);
       archive.isUrlArchived(requestUrl, function(exists) {
-        if (exists) { 
-          console.log('EXISTS');
+        if (exists) {
+          console.log('EXISTS', requestUrl);
           helpers.serveAssets(response, archive.escapeFileName(requestUrl, './archives/sites'));
         } else {
-          console.log('Doesn\'t exist');
+          console.log('Doesn\'t exist', requestUrl);
           archive.addUrlToList(requestUrl);
           helpers.serveAssets(response, './web/public/loading.html');
         }
