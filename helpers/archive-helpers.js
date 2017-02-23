@@ -46,7 +46,7 @@ exports.readListOfUrls = function(callback) {
   // invoke the callback function an pass in the array of urls
   lineReader.on('close', function () {
     callback(urlList);
-  }); 
+  });
 
 };
 
@@ -59,6 +59,7 @@ exports.isUrlInList = function(url, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
+  url = url.match(/^http:\/\//) ? url : 'http://' + url;
   fs.appendFile(exports.paths.list, '\n' + url, callback);
 };
 
@@ -72,9 +73,9 @@ exports.isUrlArchived = function(url, callback) {
 exports.downloadUrls = function(urls) {
   urls.forEach(function (url) {
     var data = '';
-    request('http://' + url, function(error, response, body) {
+    request(url, function(error, response, body) {
       if (!error && response.statusCode === 200) {
-        fs.writeFile(exports.escapeFileName(url, exports.paths.archivedSites), body); 
+        fs.writeFile(exports.escapeFileName(url, exports.paths.archivedSites), body);
       } else {
         console.log('ERROR', error);
       }
